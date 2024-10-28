@@ -1,0 +1,25 @@
+{
+  "name": "goodreads-cli",
+  "version": "0.0.1",
+  "description": "A command-line interface for searching and looking up books on Goodreads.",
+  "bin": {
+    "goodreads-search": "./search.js",
+    "goodreads-lookup": "./lookup.js"
+  },
+  "keywords": [
+    "goodreads",
+    "cli",
+    "books",
+    "search",
+    "lookup"
+  ],
+  "author": "Shane Sherman",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "puppeteer": "^23.6.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-adblocker": "^2.13.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
+  }
+}
