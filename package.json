@@ -1,6 +1,6 @@
 {
   "name": "goodreads-cli",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A command-line interface for searching and looking up books on Goodreads.",
   "bin": {
     "goodreads-search": "search.js",

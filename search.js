@@ -56,7 +56,6 @@ function buildSearchUrl(query, searchType, searchField) {
  * @param {string} searchField - Field being searched
  */
 async function navigateToSearchPage(page, url, query, searchType, searchField) {
-  console.log(`Searching for "${query}" with type "${searchType}" and field "${searchField}" at ${url}`);
   await page.goto(url, { waitUntil: 'networkidle2' });
   await page.waitForSelector('tr[itemtype="http://schema.org/Book"]', { visible: true, timeout: 10000 });
 }

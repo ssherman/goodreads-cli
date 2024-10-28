@@ -33,7 +33,6 @@ async function initializeBrowser() {
  */
 async function navigateToBookPage(page, goodreadsId) {
   const url = `${BASE_URL}${goodreadsId}`;
-  console.log(`Looking up book with ID ${goodreadsId} at ${url}`);
   
   await page.goto(url, { 
     waitUntil: ['load', 'networkidle0'],
@@ -57,16 +56,13 @@ async function handleBookDetailsExpansion(page) {
   ]);
 
   if (button) {
-    console.log('Found "Book details and editions" button. Clicking it...');
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 10000 }).catch(() => {}),
       button.click()
     ]);
     
     await page.waitForSelector('.EditionDetails', { visible: true, timeout: 10000 })
-      .catch(error => console.log('Edition details might not be available for this book.'));
-  } else {
-    console.log('No "Book details & editions" button found. Assuming details are already visible.');
+      .catch(() => {});
   }
 
   await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 2000)));
@@ -249,7 +245,6 @@ function parseEditionDetails($, bookDetails) {
 const goodreadsId = process.argv[2];
 
 if (!goodreadsId) {
-  console.error('Please provide a Goodreads book ID.');
   process.exit(1);
 }
 
@@ -258,6 +253,5 @@ lookupBook(goodreadsId)
     console.log(JSON.stringify(bookDetails, null, 2));
   })
   .catch(error => {
-    console.error('Error:', error);
     process.exit(1);
   });
