@@ -101,6 +101,8 @@ function parseBookDetails(html) {
   parseRatings($, bookDetails);
   parseGenres($, bookDetails);
   parseBasicDetails($, bookDetails);
+  parseDescription($, bookDetails);
+  parseCoverImage($, bookDetails);
   parseEditionDetails($, bookDetails);
 
   return bookDetails;
@@ -121,6 +123,8 @@ function initializeBookDetailsObject() {
     genres: [],
     numberOfPages: null,
     firstPublished: null,
+    description: null,
+    coverImage: null,
     editionDetails: {
       format: null,
       published: null,
@@ -206,6 +210,30 @@ function parseBasicDetails($, bookDetails) {
   if (publishedMatch) {
     bookDetails.firstPublished = publishedMatch[1].trim();
   }
+}
+
+/**
+ * Parse description information
+ * @param {CheerioStatic} $ - Cheerio instance
+ * @param {Object} bookDetails - Book details object to update
+ */
+function parseDescription($, bookDetails) {
+  const descriptionDiv = $('.BookPageMetadataSection__description');
+  if (descriptionDiv.length) {
+    // Get the text from the first div inside the description section
+    const description = descriptionDiv.find('.TruncatedContent__text').first().text().trim();
+    bookDetails.description = description || null;
+  }
+}
+
+/**
+ * Parse cover image URL
+ * @param {CheerioStatic} $ - Cheerio instance
+ * @param {Object} bookDetails - Book details object to update
+ */
+function parseCoverImage($, bookDetails) {
+  const coverImage = $('.BookCover__image img.ResponsiveImage').attr('src');
+  bookDetails.coverImage = coverImage || null;
 }
 
 /**
