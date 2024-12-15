@@ -48,21 +48,31 @@ async function navigateToBookPage(page, goodreadsId) {
  * @param {Page} page - Puppeteer page object
  */
 async function handleBookDetailsExpansion(page) {
-  const [button] = await Promise.all([
+  const [detailsButton] = await Promise.all([
     page.waitForSelector('button[aria-label="Book details and editions"]', { visible: true, timeout: 10000 })
       .catch(() => null),
     page.waitForSelector('.EditionDetails', { visible: true, timeout: 10000 })
       .catch(() => null)
   ]);
 
-  if (button) {
+  if (detailsButton) {
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 10000 }).catch(() => {}),
-      button.click()
+      detailsButton.click()
     ]);
     
     await page.waitForSelector('.EditionDetails', { visible: true, timeout: 10000 })
       .catch(() => {});
+  }
+
+  // Add new code to handle the "...more" button for genres
+  const moreGenresButton = await page.waitForSelector('.BookPageMetadataSection__genres button[aria-label="Show all items in the list"]', { timeout: 5000 })
+    .catch(() => null);
+
+  if (moreGenresButton) {
+    await moreGenresButton.click();
+    // Wait a moment for new genres to load
+    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 500)));
   }
 
   await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 2000)));
@@ -104,6 +114,7 @@ function parseBookDetails(html) {
   parseDescription($, bookDetails);
   parseCoverImage($, bookDetails);
   parseEditionDetails($, bookDetails);
+  parseSettings($, bookDetails);
 
   return bookDetails;
 }
@@ -121,6 +132,7 @@ function initializeBookDetailsObject() {
     numberOfRatings: null,
     numberOfReviews: null,
     genres: [],
+    settings: [],
     numberOfPages: null,
     firstPublished: null,
     description: null,
@@ -159,7 +171,8 @@ function parseTitleAndSeries($, bookDetails) {
  */
 function parseAuthors($, bookDetails) {
   $('.ContributorLinksList .ContributorLink__name').each((i, el) => {
-    bookDetails.authors.push($(el).text().trim());
+    const authorName = $(el).text().replace(/\s+/g, ' ').trim();
+    bookDetails.authors.push(authorName);
   });
 }
 
@@ -187,7 +200,7 @@ function parseRatings($, bookDetails) {
 function parseGenres($, bookDetails) {
   $('.BookPageMetadataSection__genres .Button__labelItem').each((i, el) => {
     const genreName = $(el).text().trim();
-    if (genreName !== '...more' && genreName !== '...show all') {
+    if (genreName !== '...show all') {
       bookDetails.genres.push(genreName);
     }
   });
@@ -267,6 +280,28 @@ function parseEditionDetails($, bookDetails) {
         break;
     }
   });
+}
+
+/**
+ * Parse settings information
+ * @param {CheerioStatic} $ - Cheerio instance
+ * @param {Object} bookDetails - Book details object to update
+ */
+function parseSettings($, bookDetails) {
+  const settingsContainer = $('.WorkDetails .DescListItem').filter((i, el) => 
+    $(el).find('dt').text().trim() === 'Setting'
+  );
+  
+  if (settingsContainer.length) {
+    const settingsText = settingsContainer.find('.TruncatedContent__text').text().trim();
+    // Split by commas, clean up each setting, and remove duplicates
+    const settings = [...new Set(
+      settingsText.split(',').map(setting => {
+        return setting.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim();
+      })
+    )];
+    bookDetails.settings = settings;
+  }
 }
 
 // Main execution

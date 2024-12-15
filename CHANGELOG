@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.0] - 2024-12-02
+
+### Added
+- Support for parsing book settings/locations
+- Auto-expansion of "show more" genres button to get complete genre list
+
+### Fixed
+- Removed duplicate settings entries
+- Normalized whitespace in author names
+
 ## [0.1.0] - 2024-12-02
 
 ### Added
